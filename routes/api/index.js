@@ -10,6 +10,7 @@ import queryRouter from './query.js';
 import randomBonusRouter from './random-bonus.js';
 import randomNameRouter from './random-name.js';
 import randomTossupRouter from './random-tossup.js';
+import rapidqbRouter from './rapidqb.js';
 import reportQuestionRouter from './report-question.js';
 import setListRouter from './set-list.js';
 
@@ -60,6 +61,8 @@ router.use('/random-bonus', randomBonusRouter);
 router.use('/random-name', randomNameRouter);
 
 router.use('/random-tossup', randomTossupRouter);
+
+router.use('/rapidqb', rapidqbRouter);
 
 router.use('/report-question', reportQuestionRouter);
 
