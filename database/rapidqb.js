@@ -54,6 +54,21 @@ async function getProgress(tournamentName, packetNumber, username) {
 }
 
 
+async function getMyTeamList(username) {
+    const user_id = await getUserId(username);
+    return await teams.aggregate([
+        { $match: { 'players': user_id } },
+        { $lookup: {
+            from: 'tournaments',
+            localField: 'tournament_id',
+            foreignField: '_id',
+            as: 'tournament',
+        } },
+        { $unwind: '$tournament' },
+    ]).toArray();
+}
+
+
 async function getTournamentList() {
     const tournamentList = await tournaments.find({}).toArray();
     return tournamentList;
