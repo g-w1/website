@@ -6,4 +6,8 @@ router.get('/', (req, res) => {
     res.sendFile('index.html', { root: './client/rapidqb' });
 });
 
+router.get('/registration', (req, res) => {
+    res.sendFile('registration.html', { root: './client/rapidqb' });
+});
+
 export default router;
