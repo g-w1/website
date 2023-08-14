@@ -28,32 +28,6 @@ function generateCode(length = 7) {
 }
 
 
-/**
- *
- * @param {string} tournamentName
- * @param {number} packetNumber
- * @param {string} username
- * @returns
- */
-async function getProgress(tournamentName, packetNumber, username) {
-    const user_id = await getUserId(username);
-    const tournament_id = await getTournamentId(tournamentName);
-    const result = await buzzes.aggregate([
-        { $match: { 'tournament._id': tournament_id, 'packet.number': packetNumber, user_id } },
-        { $group: {
-            _id: null,
-            numberCorrect: { $sum: { $cond: [ { $gt: ['$points', 0] }, 1, 0 ] } },
-            points: { $sum: '$points' },
-            totalCorrectCelerity: { $sum: { $cond: [ { $gt: ['$points', 0] }, '$celerity', 0 ] } },
-            tossupsHeard: { $sum: 1 },
-        } },
-    ]).toArray();
-
-    result[0] = result[0] || {};
-    return result[0];
-}
-
-
 async function getMyTeamList(username) {
     const user_id = await getUserId(username);
     return await teams.aggregate([
@@ -69,11 +43,95 @@ async function getMyTeamList(username) {
 }
 
 
+async function getPacketLength(tournament_id, packetNumber) {
+    return tossups.countDocuments({ 'tournament._id': tournament_id, 'packet.number': packetNumber });
+}
+
+/**
+ *
+ * @param {ObjectId} tournament_id
+ * @param {number} packetNumber
+ * @param {string} username
+ * @returns
+ */
+async function getProgress(tournament_id, packetNumber, username) {
+    const user_id = await getUserId(username);
+    const result = await buzzes.aggregate([
+        { $match: { 'tournament._id': tournament_id, 'packet.number': packetNumber, user_id } },
+        { $group: {
+            _id: null,
+            numberCorrect: { $sum: { $cond: [ { $gt: ['$points', 0] }, 1, 0 ] } },
+            points: { $sum: '$points' },
+            totalCorrectCelerity: { $sum: { $cond: [ { $gt: ['$points', 0] }, '$celerity', 0 ] } },
+            tossupsHeard: { $sum: 1 },
+        } },
+    ]).toArray();
+
+    result[0] = result[0] || {};
+    return result[0];
+}
+
 async function getTournamentList() {
     const tournamentList = await tournaments.find({}).toArray();
     return tournamentList;
 }
 
+/**
+ *
+ * @param {ObjectId} tournament_id
+ * @returns
+ */
+async function getTournamentName(tournament_id) {
+    const tournament = await tournaments.findOne({ _id: tournament_id });
+    return tournament.name;
+}
+
+
+/**
+ * @param {Object} params
+ * @param {Decimal} params.celerity
+ * @param {String} params.givenAnswer
+ * @param {Boolean} params.isCorrect
+ * @param {Number} params.packetNumber
+ * @param {String[]} params.prompts - whether or not the buzz is a prompt
+ * @param {Number} params.questionNumber
+ * @param {ObjectId} params.tournament_id
+ * @param {ObjectId} params.user_id
+ */
+async function recordBuzz({ celerity, givenAnswer, isCorrect, packetNumber, points, prompts, questionNumber, tournament_id, user_id }) {
+    const username = await getUsername(user_id);
+    const admin = await isAdmin(username);
+    const tournamentName = await getTournamentName(tournament_id);
+    const packet = await packets.findOne({ 'tournament._id': tournament_id, number: packetNumber });
+    const tossup = await tossups.findOne({ 'tournament._id': tournament_id, 'packet.number': packetNumber, number: questionNumber });
+
+    const insertDocument = {
+        celerity,
+        givenAnswer,
+        isCorrect,
+        isAdmin: admin,
+        packet: {
+            _id: packet._id,
+            number: packetNumber,
+        },
+        points,
+        tournament: {
+            _id: tournament_id,
+            name: tournamentName,
+        },
+        tossup: {
+            _id: tossup._id,
+            number: tossup.number,
+        },
+        user_id,
+    };
+
+    if (prompts && typeof prompts === 'object' && prompts.length > 0) {
+        insertDocument.prompts = prompts;
+    }
+
+    return await buzzes.insertOne(insertDocument);
+}
 
 /**
  *
@@ -93,4 +151,12 @@ async function registerTeam(teamName, captain_id, tournament_id) {
     return { _id, code };
 }
 
-export { getProgress, getTournamentList, registerTeam };
+export {
+    getMyTeamList,
+    getPacketLength,
+    getProgress,
+    getTournamentList,
+    getTournamentName,
+    recordBuzz,
+    registerTeam,
+};
