@@ -71,7 +71,7 @@ async function getPacketLength(tournamentName, packetNumber) {
 async function getProgress(tournamentName, packetNumber, username) {
     const user_id = await getUserId(username);
     const result = await buzzes.aggregate([
-        { $match: { 'tournament._name': tournamentName, 'packet.number': packetNumber, user_id } },
+        { $match: { 'tournament.name': tournamentName, 'packet.number': packetNumber, user_id } },
         { $group: {
             _id: null,
             numberCorrect: { $sum: { $cond: [ { $gt: ['$points', 0] }, 1, 0 ] } },
