@@ -1,4 +1,4 @@
-import { registerTeam, getMyTeamList, getPacketLength, getProgress, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
+import { registerTeam, getMyTeamList, getPacketLength, getProgress, getPrompt, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
 import { getUserId } from '../../database/users.js';
 import { checkToken } from '../../server/authentication.js';
 
@@ -35,6 +35,12 @@ router.get('/progress', async (req, res) => {
     const { tournamentName, packetNumber } = req.query;
     const progress = await getProgress(tournamentName, parseInt(packetNumber), username);
     res.json(progress);
+});
+
+router.get('/prompt', async (req, res) => {
+    const { tournamentName, packetNumber, questionNumber } = req.query;
+    const prompt = await getPrompt(tournamentName, parseInt(packetNumber), parseInt(questionNumber));
+    res.json({ prompt });
 });
 
 router.put('/record-buzz', async (req, res) => {

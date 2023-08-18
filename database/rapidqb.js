@@ -80,6 +80,11 @@ async function getProgress(tournamentName, packetNumber, username) {
     return result[0];
 }
 
+async function getPrompt(tournamentName, packetNumber, questionNumber) {
+    const tossup = await tossups.findOne({ 'tournament.name': tournamentName, 'packet.number': packetNumber, number: questionNumber });
+    return tossup?.prompt;
+}
+
 async function getTournamentList() {
     const tournamentList = await tournaments.find({}).toArray();
     return tournamentList;
@@ -188,6 +193,7 @@ export {
     getMyTeamList,
     getPacketLength,
     getProgress,
+    getPrompt,
     getTournamentList,
     getTournamentName,
     recordBuzz,

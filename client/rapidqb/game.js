@@ -106,6 +106,14 @@ function next() {
     document.getElementById('buzz').disabled = false;
     document.getElementById('start').disabled = true;
 
+    fetch('/api/rapidqb/prompt?' + new URLSearchParams({ tournamentName, packetNumber, questionNumber: currentQuestionNumber }))
+        .then(response => response.json())
+        .then(data => {
+            const { prompt } = data;
+            document.getElementById('prompt').innerHTML = prompt;
+            document.getElementById('prompt').classList.remove('d-none');
+        });
+
     currentAudio = new Audio(encodeURI(`/rapidqb/audio/game/${tournamentName}/${packetNumber}/${currentQuestionNumber}.mp3`));
     startTime = performance.now();
     currentAudio.play();
