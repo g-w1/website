@@ -1,10 +1,14 @@
 import { Router } from 'express';
 
+import audioRouter from './audio.js';
+
 const router = Router();
 
 router.get('/', (req, res) => {
     res.sendFile('index.html', { root: './client/rapidqb' });
 });
+
+router.use('/audio', audioRouter);
 
 router.get('/game/:tournament', (req, res) => {
     res.sendFile('game.html', { root: './client/rapidqb' });

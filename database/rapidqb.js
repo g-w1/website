@@ -27,6 +27,15 @@ function generateCode(length = 7) {
     return code;
 }
 
+async function getAudio(tournamentName, packetNumber, questionNumber) {
+    const tossup = await tossups.findOne({ 'tournament.name': tournamentName, 'packet.number': packetNumber, number: questionNumber });
+    if (!tossup) {
+        return null;
+    }
+
+    const audioFile = await audio.findOne({ _id: tossup.audio_id });
+    return audioFile?.audio?.buffer;
+}
 
 async function getMyTeamList(username) {
     const user_id = await getUserId(username);
