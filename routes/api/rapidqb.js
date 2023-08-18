@@ -1,10 +1,18 @@
-import { registerTeam, getMyTeamList, getPacketLength, getProgress, getPrompt, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
+import { registerTeam, getAnswer, getMyTeamList, getPacketLength, getProgress, getPrompt, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
 import { getUserId } from '../../database/users.js';
 import { checkToken } from '../../server/authentication.js';
+import checkAnswer from '../../server/checkAnswer.js';
 
 import { Router } from 'express';
 
 const router = Router();
+
+router.get('/check-answer', async (req, res) => {
+    const { givenAnswer, tournamentName, packetNumber, questionNumber } = req.query;
+    const answer = await getAnswer(tournamentName, parseInt(packetNumber), parseInt(questionNumber));
+    const { directive, directedPrompt } = checkAnswer(answer, givenAnswer);
+    res.json({ actualAnswer: answer, directive, directedPrompt });
+});
 
 router.get('/my-team-list', async (req, res) => {
     const { username, token } = req.session;

@@ -49,7 +49,7 @@ const correctAudio = new Audio('/audio/correct.mp3');
 const incorrectAudio = new Audio('/audio/incorrect.mp3');
 const sampleAudio = new Audio(`/rapidqb/audio/${tournamentName}/sample.mp3`);
 
-async function checkRapidQBAnswer(givenAnswer, questionNumber) {
+async function checkAnswer(givenAnswer, questionNumber) {
     return await fetch(`${baseURL}/check-answer?` + new URLSearchParams({
         givenAnswer,
         tournamentName,
@@ -66,7 +66,7 @@ async function checkRapidQBAnswer(givenAnswer, questionNumber) {
 async function giveAnswer(givenAnswer) {
     currentlyBuzzing = false;
 
-    const { actualAnswer, directive, directedPrompt } = await checkrapidqbAnswer(givenAnswer, currentQuestionNumber);
+    const { actualAnswer, directive, directedPrompt } = await checkAnswer(givenAnswer, currentQuestionNumber);
 
     switch (directive) {
     case 'accept':
@@ -132,12 +132,13 @@ function recordProtest(packetName, questionNumber) {
     });
 }
 
-function recordBuzz(packetName, questionNumber, celerity, points, givenAnswer, prompts=[]) {
+function recordBuzz(questionNumber, celerity, points, givenAnswer, prompts=[]) {
     fetch(`${baseURL}/record-buzz`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            packetName,
+            tournamentName: tournamentName,
+            packetNumber: packetNumber,
             questionNumber,
             celerity,
             points,
@@ -161,7 +162,7 @@ function updateScore(isCorrect, givenAnswer, actualAnswer, prompts=[]) {
         document.getElementById('protest-text').classList.remove('d-none');
     }
 
-    recordBuzz(tournamentName, currentQuestionNumber, celerity, currentPoints, givenAnswer, prompts);
+    recordBuzz(currentQuestionNumber, celerity, currentPoints, givenAnswer, prompts);
 
     points += currentPoints;
     tossupsHeard++;

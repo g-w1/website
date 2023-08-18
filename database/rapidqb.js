@@ -37,6 +37,11 @@ async function getAudio(tournamentName, packetNumber, questionNumber) {
     return audioFile?.audio?.buffer;
 }
 
+async function getAnswer(tournamentName, packetNumber, questionNumber) {
+    const tossup = await tossups.findOne({ 'tournament.name': tournamentName, 'packet.number': packetNumber, number: questionNumber });
+    return tossup?.formatted_answer ?? tossup?.answer;
+}
+
 async function getMyTeamList(username) {
     const user_id = await getUserId(username);
     return await teams.aggregate([
@@ -189,6 +194,7 @@ async function registerTeam(teamName, captain_id, tournamentName) {
 }
 
 export {
+    getAnswer,
     getAudio,
     getMyTeamList,
     getPacketLength,
