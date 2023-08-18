@@ -1,4 +1,4 @@
-import { registerTeam, getAnswer, getMyTeamList, getPacketLength, getProgress, getPrompt, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
+import { registerTeam, getAnswer, getMyTeamList, getPacketLength, getProgress, getPrompt, getTournamentList, recordBuzz, recordProtest } from '../../database/rapidqb.js';
 import { getUserId } from '../../database/users.js';
 import { checkToken } from '../../server/authentication.js';
 import checkAnswer from '../../server/checkAnswer.js';
@@ -75,6 +75,24 @@ router.put('/record-buzz', async (req, res) => {
     });
 
     res.sendStatus(200);
+});
+
+router.put('/record-protest', async (req, res) => {
+    const { username, token } = req.session;
+    if (!checkToken(username, token)) {
+        delete req.session;
+        res.redirect('/geoword/login');
+        return;
+    }
+
+    const { tournamentName, packetNumber, questionNumber } = req.body;
+    const result = await recordProtest(tournamentName, packetNumber, questionNumber, username);
+
+    if (result.matchedCount === 1) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(500);
+    }
 });
 
 router.put('/register-team', async (req, res) => {

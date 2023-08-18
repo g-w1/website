@@ -119,19 +119,6 @@ function next() {
     currentAudio.play();
 }
 
-function recordProtest(packetName, questionNumber) {
-    fetch(`${baseURL}/record-protest?`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            packetName,
-            questionNumber,
-        }),
-    }).then(() => {
-        document.getElementById('record-protest-confirmation').classList.remove('d-none');
-    });
-}
-
 function recordBuzz(questionNumber, celerity, points, givenAnswer, prompts=[]) {
     fetch(`${baseURL}/record-buzz`, {
         method: 'PUT',
@@ -145,6 +132,24 @@ function recordBuzz(questionNumber, celerity, points, givenAnswer, prompts=[]) {
             givenAnswer,
             prompts,
         }),
+    });
+}
+
+function recordProtest(questionNumber) {
+    fetch(`${baseURL}/record-protest?`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tournamentName: tournamentName,
+            packetNumber: packetNumber,
+            questionNumber,
+        }),
+    }).then(response => {
+        if (response.status === 200) {
+            document.getElementById('record-protest-confirmation').classList.remove('d-none');
+        } else {
+            alert('Error recording protest');
+        }
     });
 }
 
@@ -236,7 +241,7 @@ document.getElementById('play-sample').addEventListener('click', function () {
 });
 
 document.getElementById('record-protest').addEventListener('click', () => {
-    recordProtest(tournamentName, currentQuestionNumber);
+    recordProtest(currentQuestionNumber);
 });
 
 document.getElementById('start').addEventListener('click', next);

@@ -162,6 +162,14 @@ async function recordBuzz({ celerity, givenAnswer, isCorrect, packetNumber, poin
     return await buzzes.insertOne(insertDocument);
 }
 
+async function recordProtest(tournamentName, packetNumber, questionNumber, username) {
+    const user_id = await getUserId(username);
+    return await buzzes.updateOne(
+        { user_id, 'tournament.name': tournamentName, 'packet.number': packetNumber, 'tossup.number': questionNumber },
+        { $set: { pendingProtest: true } },
+    );
+}
+
 /**
  *
  * @param {string} teamName
@@ -203,5 +211,6 @@ export {
     getTournamentList,
     getTournamentName,
     recordBuzz,
+    recordProtest,
     registerTeam,
 };
