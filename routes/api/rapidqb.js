@@ -1,9 +1,8 @@
-import { registerTeam, getMyTeamList, getPacketLength, getProgress, getTournamentList, getTournamentName, recordBuzz } from '../../database/rapidqb.js';
+import { registerTeam, getMyTeamList, getPacketLength, getProgress, getTournamentList, recordBuzz } from '../../database/rapidqb.js';
 import { getUserId } from '../../database/users.js';
 import { checkToken } from '../../server/authentication.js';
 
 import { Router } from 'express';
-import { ObjectId } from 'mongodb';
 
 const router = Router();
 
@@ -20,13 +19,9 @@ router.get('/my-team-list', async (req, res) => {
 });
 
 router.get('/packet-length', async (req, res) => {
-    const { tournament_id, packetNumber } = req.query;
-    try {
-        const packetLength = await getPacketLength(new ObjectId(tournament_id), parseInt(packetNumber));
-        res.json({ packetLength });
-    } catch (error) {
-        res.sendStatus(400);
-    }
+    const { tournamentName, packetNumber } = req.query;
+    const packetLength = await getPacketLength(tournamentName, parseInt(packetNumber));
+    res.json({ packetLength });
 });
 
 router.get('/progress', async (req, res) => {
@@ -37,13 +32,9 @@ router.get('/progress', async (req, res) => {
         return;
     }
 
-    const { tournament_id, packetNumber } = req.query;
-    try {
-        const progress = await getProgress(new ObjectId(tournament_id), parseInt(packetNumber), username);
-        res.json(progress);
-    } catch (error) {
-        res.sendStatus(400);
-    }
+    const { tournamentName, packetNumber } = req.query;
+    const progress = await getProgress(tournamentName, parseInt(packetNumber), username);
+    res.json(progress);
 });
 
 router.put('/record-buzz', async (req, res) => {
@@ -54,30 +45,21 @@ router.put('/record-buzz', async (req, res) => {
         return;
     }
 
-    let { celerity, givenAnswer, packetNumber, points, prompts, questionNumber, tournament_id } = req.body;
-    try {
-        celerity = parseFloat(celerity);
-        packetNumber = parseInt(packetNumber);
-        points = parseInt(points);
-        questionNumber = parseInt(questionNumber);
-        tournament_id = new ObjectId(tournament_id);
-    } catch (error) {
-        res.sendStatus(400);
-        return;
-    }
-
+    const { celerity, givenAnswer, packetNumber, points, prompts, questionNumber, tournamentName } = req.body;
     const user_id = await getUserId(username);
+
     await recordBuzz({
-        celerity,
+        celerity: parseFloat(celerity),
         givenAnswer,
         isCorrect: points > 0,
-        packetNumber,
-        points,
+        packetNumber: parseInt(packetNumber),
+        points: parseInt(points),
         prompts,
-        questionNumber,
-        tournament_id: new ObjectId(tournament_id),
+        questionNumber: parseInt(questionNumber),
+        tournamentName,
         user_id,
     });
+
     res.sendStatus(200);
 });
 
@@ -89,9 +71,9 @@ router.put('/register-team', async (req, res) => {
         return;
     }
 
-    const { teamName, tournament_id } = req.body;
+    const { teamName, tournamentName } = req.body;
     const captain_id = await getUserId(username);
-    await registerTeam(teamName, captain_id, new ObjectId(tournament_id));
+    await registerTeam(teamName, captain_id, tournamentName);
     res.sendStatus(200);
 });
 
@@ -105,16 +87,6 @@ router.get('/tournament-list', async (req, res) => {
 
     const tournamentList = await getTournamentList();
     res.json({ tournamentList });
-});
-
-router.get('/tournament-name', async (req, res) => {
-    const { tournament_id } = req.query;
-    try {
-        const tournamentName = await getTournamentName(new ObjectId(tournament_id));
-        res.json({ tournamentName });
-    } catch (error) {
-        res.sendStatus(400);
-    }
 });
 
 export default router;

@@ -43,21 +43,21 @@ async function getMyTeamList(username) {
 }
 
 
-async function getPacketLength(tournament_id, packetNumber) {
-    return tossups.countDocuments({ 'tournament._id': tournament_id, 'packet.number': packetNumber });
+async function getPacketLength(tournamentName, packetNumber) {
+    return tossups.countDocuments({ 'tournament.name': tournamentName, 'packet.number': packetNumber });
 }
 
 /**
  *
- * @param {ObjectId} tournament_id
+ * @param {string} tournamentName
  * @param {number} packetNumber
  * @param {string} username
  * @returns
  */
-async function getProgress(tournament_id, packetNumber, username) {
+async function getProgress(tournamentName, packetNumber, username) {
     const user_id = await getUserId(username);
     const result = await buzzes.aggregate([
-        { $match: { 'tournament._id': tournament_id, 'packet.number': packetNumber, user_id } },
+        { $match: { 'tournament._name': tournamentName, 'packet.number': packetNumber, user_id } },
         { $group: {
             _id: null,
             numberCorrect: { $sum: { $cond: [ { $gt: ['$points', 0] }, 1, 0 ] } },
@@ -74,6 +74,16 @@ async function getProgress(tournament_id, packetNumber, username) {
 async function getTournamentList() {
     const tournamentList = await tournaments.find({}).toArray();
     return tournamentList;
+}
+
+/**
+ *
+ * @param {string} tournamentName
+ * @returns
+ */
+async function getTournamentId(tournamentName) {
+    const tournament = await tournaments.findOne({ name: tournamentName });
+    return tournament._id;
 }
 
 /**
@@ -98,10 +108,10 @@ async function getTournamentName(tournament_id) {
  * @param {ObjectId} params.tournament_id
  * @param {ObjectId} params.user_id
  */
-async function recordBuzz({ celerity, givenAnswer, isCorrect, packetNumber, points, prompts, questionNumber, tournament_id, user_id }) {
+async function recordBuzz({ celerity, givenAnswer, isCorrect, packetNumber, points, prompts, questionNumber, tournamentName, user_id }) {
     const username = await getUsername(user_id);
     const admin = await isAdmin(username);
-    const tournamentName = await getTournamentName(tournament_id);
+    const tournament_id = await getTournamentId(tournamentName);
     const packet = await packets.findOne({ 'tournament._id': tournament_id, number: packetNumber });
     const tossup = await tossups.findOne({ 'tournament._id': tournament_id, 'packet.number': packetNumber, number: questionNumber });
 
@@ -137,21 +147,35 @@ async function recordBuzz({ celerity, givenAnswer, isCorrect, packetNumber, poin
  *
  * @param {string} teamName
  * @param {ObjectId} captain_id - the user id of the captain (founding member) of the team
- * @param {ObjectId} tournament_id - the tournament id of the tournament the team is registering for
+ * @param {string} tournamentName - the name of the tournament the team is registering for
  */
-async function registerTeam(teamName, captain_id, tournament_id) {
+async function registerTeam(teamName, captain_id, tournamentName) {
     const _id = new ObjectId();
     let code = generateCode();
+
+    const tournament_id = await tournaments.findOne({ name: tournamentName })._id;
 
     while (await teams.countDocuments({ code: code }) > 0) {
         code = generateCode();
     }
 
-    teams.insertOne({ _id: _id, name: teamName, code: code, captain_id: captain_id, tournament_id: tournament_id, players: [captain_id] });
+    teams.insertOne({
+        _id: _id,
+        name: teamName,
+        code: code,
+        captain_id: captain_id,
+        tournament: {
+            _id: tournament_id,
+            name: tournamentName,
+        },
+        players: [captain_id],
+    });
+
     return { _id, code };
 }
 
 export {
+    getAudio,
     getMyTeamList,
     getPacketLength,
     getProgress,

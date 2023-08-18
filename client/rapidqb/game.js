@@ -1,18 +1,17 @@
 const baseURL = '/api/rapidqb';
 
-const tournament_id = window.location.pathname.split('/').pop();
-const tournamentName = await fetch(`${baseURL}/tournament-name?` + new URLSearchParams({ tournament_id }))
-    .then(response => response.json())
-    .then(data => data.tournamentName);
-
+const tournamentName = window.location.pathname.split('/').pop();
+const tournamentTitle = titleCase(tournamentName);
 const packetNumber = parseInt(window.location.search.slice(1));
+document.getElementById('packet-name').textContent = `${tournamentTitle} (Packet ${packetNumber})`;
 
-const packetLength = await fetch(`${baseURL}/packet-length?` + new URLSearchParams({ tournament_id, packetNumber }))
+let packetLength;
+fetch(`${baseURL}/packet-length?` + new URLSearchParams({ tournamentName, packetNumber }))
     .then(response => response.json())
-    .then(data => data.packetLength);
-
-document.getElementById('packet-name').textContent = `${tournamentName} (Packet ${packetNumber})`;
-document.getElementById('packet-length').textContent = packetLength;
+    .then(data => {
+        document.getElementById('packet-length').textContent = data.packetLength;
+        packetLength = data.packetLength;
+    });
 
 let currentAudio;
 let currentQuestionNumber = 0;
@@ -25,9 +24,9 @@ let prompts = [];
 let totalCorrectCelerity = 0;
 let tossupsHeard = 0;
 
-document.getElementById('rapidqb-stats').href = '/rapidqb/stats/' + tournament_id;
+document.getElementById('rapidqb-stats').href = '/rapidqb/stats/' + tournamentName;
 
-fetch(`${baseURL}/progress?` + new URLSearchParams({ tournament_id, packetNumber }))
+fetch(`${baseURL}/progress?` + new URLSearchParams({ tournamentName, packetNumber }))
     .then(response => response.json())
     .then(data => {
         ({ numberCorrect, points, totalCorrectCelerity, tossupsHeard } = data);
@@ -48,7 +47,7 @@ fetch(`${baseURL}/progress?` + new URLSearchParams({ tournament_id, packetNumber
 const buzzAudio = new Audio('/audio/buzz.mp3');
 const correctAudio = new Audio('/audio/correct.mp3');
 const incorrectAudio = new Audio('/audio/incorrect.mp3');
-const sampleAudio = new Audio(`/rapidqb/audio/${tournament_id}/sample.mp3`);
+const sampleAudio = new Audio(`/rapidqb/audio/${tournamentName}/sample.mp3`);
 
 async function checkRapidQBAnswer(givenAnswer, questionNumber) {
     return await fetch(`${baseURL}/check-answer?` + new URLSearchParams({
@@ -107,7 +106,7 @@ function next() {
     document.getElementById('buzz').disabled = false;
     document.getElementById('start').disabled = true;
 
-    currentAudio = new Audio(encodeURI(`/rapidqb/audio/game/${tournament_id}/${division}/${currentQuestionNumber}.mp3`));
+    currentAudio = new Audio(encodeURI(`/rapidqb/audio/game/${tournamentName}/${packetNumber}/${currentQuestionNumber}.mp3`));
     startTime = performance.now();
     currentAudio.play();
 }
@@ -154,7 +153,7 @@ function updateScore(isCorrect, givenAnswer, actualAnswer, prompts=[]) {
         document.getElementById('protest-text').classList.remove('d-none');
     }
 
-    recordBuzz(tournament_id, currentQuestionNumber, celerity, currentPoints, givenAnswer, prompts);
+    recordBuzz(tournamentName, currentQuestionNumber, celerity, currentPoints, givenAnswer, prompts);
 
     points += currentPoints;
     tossupsHeard++;
@@ -228,7 +227,7 @@ document.getElementById('play-sample').addEventListener('click', function () {
 });
 
 document.getElementById('record-protest').addEventListener('click', () => {
-    recordProtest(tournament_id, currentQuestionNumber);
+    recordProtest(tournamentName, currentQuestionNumber);
 });
 
 document.getElementById('start').addEventListener('click', next);
