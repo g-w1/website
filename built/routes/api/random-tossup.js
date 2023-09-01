@@ -24,6 +24,7 @@ router.get('/', async (req, res) => {
     if (tossups.length === 0) {
         res.status(404);
     }
+    res.header('Access-Control-Allow-Origin', '*');
     res.json({ tossups });
 });
 export default router;

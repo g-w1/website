@@ -14,6 +14,7 @@ router.get('/room-list', (req, res) => {
             isPermanent: tossupRooms[roomName].isPermanent,
         });
     }
+    res.header('Access-Control-Allow-Origin', '*');
     res.json({ roomList });
 });
 export default router;

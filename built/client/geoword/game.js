@@ -4,8 +4,6 @@ const packetTitle = titleCase(packetName);
 let packetLength = 20;
 let currentAudio;
 let currentQuestionNumber = 0;
-let startTime = null;
-let endTime = null;
 let division;
 let numberCorrect = 0;
 let points = 0;
@@ -89,7 +87,6 @@ function next() {
     document.getElementById('buzz').disabled = false;
     document.getElementById('start').disabled = true;
     currentAudio = new Audio(encodeURI(`/geoword/audio/game/${packetName}/${division}/${currentQuestionNumber}.mp3`));
-    startTime = performance.now();
     currentAudio.play();
 }
 function recordProtest(packetName, questionNumber) {
@@ -115,9 +112,7 @@ function recordBuzz(packetName, questionNumber, celerity, points, givenAnswer, p
     }));
 }
 function updateScore(isCorrect, givenAnswer, actualAnswer, prompts = []) {
-    const delta = (endTime - startTime) / 1000;
-    const isEndOfQuestion = delta > currentAudio.duration;
-    const celerity = isEndOfQuestion ? 0 : 1 - delta / currentAudio.duration;
+    const celerity = 1 - currentAudio.currentTime / currentAudio.duration;
     const currentPoints = isCorrect ? 10 + Math.round(10 * celerity) : 0;
     if (isCorrect) {
         correctAudio.play();
@@ -158,7 +153,6 @@ document.getElementById('answer-form').addEventListener('submit', function (even
     giveAnswer(answer);
 });
 document.getElementById('buzz').addEventListener('click', function () {
-    endTime = performance.now();
     currentAudio.pause();
     buzzAudio.play();
     document.getElementById('answer-input-group').classList.remove('d-none');

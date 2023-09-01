@@ -6,6 +6,7 @@ router.get('/', async (req, res) => {
     if (numPackets === 0) {
         res.statusCode = 404;
     }
+    res.header('Access-Control-Allow-Origin', '*');
     res.json({ numPackets });
 });
 export default router;
