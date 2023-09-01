@@ -8,7 +8,7 @@ router.get('/:packetName', async (req, res) => {
     const user_id = await getUserId(username);
     const paid = await geoword.checkPayment(packetName, user_id);
     if (paid) {
-        res.sendFile('packet.html', { root: './client/geoword' });
+        res.sendFile('packet.html', { root: './src/client/geoword' });
         return;
     }
     res.redirect('/geoword/payment/' + packetName);

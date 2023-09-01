@@ -11,20 +11,20 @@ import statsRouter from './stats.js';
 import { Router } from 'express';
 const router = Router();
 router.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './client/geoword' });
+    res.sendFile('index.html', { root: './src/client/geoword' });
 });
 router.use('/admin', (req, res) => {
     res.redirect('/admin/geoword' + req.url);
 });
 router.use('/audio', audioRouter);
 router.get('/confirmation', (req, res) => {
-    res.sendFile('confirmation.html', { root: './client/geoword' });
+    res.sendFile('confirmation.html', { root: './src/client/geoword' });
 });
 router.get('/index', (req, res) => {
     res.redirect('/geoword');
 });
 router.get('/login', (req, res) => {
-    res.sendFile('login.html', { root: './client/geoword' });
+    res.sendFile('login.html', { root: './src/client/geoword' });
 });
 router.use('/*/:packetName', async (req, res, next) => {
     const { username, token } = req.session;
@@ -50,7 +50,7 @@ router.use('/compare', compareRouter);
 router.use('/division', divisionRouter);
 router.use('/game', gameRouter);
 router.get('/leaderboard/:packetName', (req, res) => {
-    res.sendFile('leaderboard.html', { root: './client/geoword' });
+    res.sendFile('leaderboard.html', { root: './src/client/geoword' });
 });
 router.use('/packet', packetRouter);
 router.use('/payment', paymentRouter);

@@ -11,6 +11,6 @@ router.get('/:packetName', async (req, res) => {
         res.redirect('/geoword/division/' + packetName);
         return;
     }
-    res.sendFile('payment.html', { root: './client/geoword' });
+    res.sendFile('payment.html', { root: './src/client/geoword' });
 });
 export default router;

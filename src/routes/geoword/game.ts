@@ -34,7 +34,7 @@ router.get('/:packetName', async (req, res) => {
         return;
     }
 
-    res.sendFile('game.html', { root: './client/geoword' });
+    res.sendFile('game.html', { root: './src/client/geoword' });
 });
 
 export default router;

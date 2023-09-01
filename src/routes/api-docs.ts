@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as fs from 'fs';
 
 const router = Router();
-const docsDir = './client/api-docs';
+const docsDir = './src/client/api-docs';
 
 router.get('/', (req, res) => {
     res.sendFile('index.html', { root: docsDir });

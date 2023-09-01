@@ -17,7 +17,7 @@ router.get('/:packetName', async (req, res) => {
         return;
     }
 
-    res.sendFile('stats.html', { root: './client/geoword' });
+    res.sendFile('stats.html', { root: './src/client/geoword' });
 });
 
 export default router;

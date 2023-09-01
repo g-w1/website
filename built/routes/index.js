@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 router.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './client' });
+    res.sendFile('index.html', { root: './src/client' });
 });
 router.get('/react(-dom)?/umd/*.js', (req, res) => {
     res.sendFile(req.url, { root: './node_modules' });
@@ -10,22 +10,22 @@ router.get('/node_modules/*.scss', (req, res) => {
     res.sendFile(req.url.substring(13), { root: './node_modules' });
 });
 router.get('/*.css', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 router.get('/*.ico', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 router.get('/*.js', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './built/client' });
 });
 router.get('/*.jsx', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 router.get('/*.map', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 router.get('/*.png', (req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 router.get('/*.scss', (req, res) => {
     res.sendFile(req.url.substring(5), { root: './scss' });

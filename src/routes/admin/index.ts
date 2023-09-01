@@ -27,13 +27,13 @@ router.use(async (req, res, next) => {
 });
 
 router.get('/category-reports', (_req, res) => {
-    res.sendFile('category-reports.html', { root: './client/admin' });
+    res.sendFile('category-reports.html', { root: './src/client/admin' });
 });
 
 router.use('/geoword', geowordRouter);
 
 router.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './client/admin' });
+    res.sendFile('index.html', { root: './src/client/admin' });
 });
 
 export default router;

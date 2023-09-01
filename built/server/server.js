@@ -70,7 +70,7 @@ app.use('/tossups', tossupsRouter);
 app.use('/user', userRouter);
 app.use('/webhook', webhookRouter);
 app.use((req, res) => {
-    res.sendFile(req.url, { root: './client' });
+    res.sendFile(req.url, { root: './src/client' });
 });
 // listen on ipv4 instead of ipv6
 server.listen({ port, host: '0.0.0.0' }, () => {

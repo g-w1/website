@@ -13,7 +13,7 @@ function getPageSecurely(htmlFile) {
             return;
         }
 
-        res.sendFile(htmlFile, { root: './client/user' });
+        res.sendFile(htmlFile, { root: './src/client/user' });
     };
 }
 
@@ -21,7 +21,7 @@ router.get('/edit-profile', getPageSecurely('edit-profile.html'));
 router.get('/edit-password', getPageSecurely('edit-password.html'));
 
 router.get('/forgot-password', async (req, res) => {
-    res.sendFile('forgot-password.html', { root: './client/user' });
+    res.sendFile('forgot-password.html', { root: './src/client/user' });
 });
 
 router.get('/login', async (req, res) => {
@@ -31,18 +31,18 @@ router.get('/login', async (req, res) => {
         return;
     }
 
-    res.sendFile('login.html', { root: './client/user' });
+    res.sendFile('login.html', { root: './src/client/user' });
 });
 
 
 router.get('/my-profile', getPageSecurely('my-profile.html'));
 
 router.get('/reset-password', async (req, res) => {
-    res.sendFile('reset-password.html', { root: './client/user' });
+    res.sendFile('reset-password.html', { root: './src/client/user' });
 });
 
 router.get('/signup', async (req, res) => {
-    res.sendFile('signup.html', { root: './client/user' });
+    res.sendFile('signup.html', { root: './src/client/user' });
 });
 
 router.get('/stats/bonus-graph', getPageSecurely('stats/bonus-graph.html'));
@@ -51,7 +51,7 @@ router.get('/stats/tossups', getPageSecurely('stats/tossups.html'));
 router.get('/stats/tossup-graph', getPageSecurely('stats/tossup-graph.html'));
 
 router.get('/verify-failed', async (req, res) => {
-    res.sendFile('verify-failed.html', { root: './client/user' });
+    res.sendFile('verify-failed.html', { root: './src/client/user' });
 });
 
 
