@@ -10,7 +10,7 @@ const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 const rateLimiter = new RateLimit(50, 1000);
 /**
- * @returns {Number} The number of points scored on a tossup.
+ * @returns The number of points scored on a tossup.
  */
 function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }) {
     const powerValue = isPace ? 20 : 15;
@@ -468,7 +468,7 @@ class TossupRoom {
         });
     }
     async readQuestion(expectedReadTime) {
-        if (Object.keys(this.tossup).length === 0)
+        if (!this.tossup || Object.keys(this.tossup).length === 0)
             return;
         if (this.wordIndex >= this.questionSplit.length) {
             return;
@@ -498,7 +498,7 @@ class TossupRoom {
         }, delay);
     }
     revealQuestion() {
-        if (Object.keys(this.tossup).length === 0)
+        if (!this.tossup || Object.keys(this.tossup).length === 0)
             return;
         const remainingQuestion = this.questionSplit.slice(this.wordIndex).join(' ');
         this.sendSocketMessage({

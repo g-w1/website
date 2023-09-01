@@ -1,5 +1,18 @@
 class Player {
-    constructor(userId) {
+    userId: any;
+    username: string;
+    powers: number;
+    tens: number;
+    zeroes: number;
+    negs: number;
+    points: number;
+    tuh: number;
+    celerity: {
+        all: { total: number; average: number; };
+        correct: { total: number; average: number; };
+    };
+
+    constructor(userId: string) {
         this.userId = userId;
         this.username = '';
         this.powers = 0;
@@ -39,7 +52,7 @@ class Player {
         };
     }
 
-    updateStats(points, celerity) {
+    updateStats(points: number, celerity: number) {
         this.points += points;
         this.celerity.all.total += celerity;
         this.celerity.all.average = this.celerity.all.total / this.tuh;
@@ -60,7 +73,7 @@ class Player {
         }
     }
 
-    updateUsername(username) {
+    updateUsername(username: string) {
         this.username = username;
     }
 }

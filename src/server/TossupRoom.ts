@@ -1,3 +1,5 @@
+import type { tossup, bonus } from '../index.d.ts';
+
 import checkAnswer from './checkAnswer.js';
 import Player from './Player.js';
 import RateLimit from './RateLimit.js';
@@ -7,22 +9,53 @@ import { DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR, PERMANENT_ROOMS } from '../constant
 
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
+import WebSocket from 'ws';
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
 const rateLimiter = new RateLimit(50, 1000);
 
 /**
- * @returns {Number} The number of points scored on a tossup.
+ * @returns The number of points scored on a tossup.
  */
-function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }) {
+function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }: { isCorrect: boolean, inPower: boolean, endOfQuestion: boolean, isPace?: boolean }): number {
     const powerValue = isPace ? 20 : 15;
     const negValue = isPace ? 0 : -5;
     return isCorrect ? (inPower ? powerValue : 10) : (endOfQuestion ? 0 : negValue);
 }
 
 class TossupRoom {
-    constructor(name, isPermanent = false) {
+    name: string;
+    isPermanent: boolean;
+    players: {};
+    sockets: {};
+    timeoutID?: number;
+    buzzedIn: string | null;
+    buzzes: string[];
+    paused: boolean;
+    queryingQuestion: boolean;
+    questionNumber: number;
+    questionProgress: number;
+    questionSplit: string[];
+    tossup?: tossup;
+    wordIndex: number;
+    randomQuestionCache: tossup[];
+    setCache: tossup[];
+    query: {
+        difficulties: number[];
+        minYear: number;
+        maxYear: number;
+        packetNumbers: number[];
+        setName: string;
+        categories: string[];
+        subcategories: string[];
+        reverse: boolean; // used for `database.getSet`
+        powermarkOnly: boolean;
+    };
+    settings: { public: boolean; rebuzz: boolean; readingSpeed: number; selectBySetName: boolean; skip: boolean; };
+    rateLimitExceeded: Set<string>;
+
+    constructor(name: string, isPermanent: boolean = false) {
         this.name = name;
         this.isPermanent = isPermanent;
 
@@ -66,7 +99,7 @@ class TossupRoom {
         this.rateLimitExceeded = new Set();
     }
 
-    connection(socket, userId, username) {
+    connection(socket: WebSocket, userId: string, username: string) {
         console.log(`Connection in room ${HEADER}${this.name}${ENDC} - userId: ${OKBLUE}${userId}${ENDC}, username: ${OKBLUE}${username}${ENDC} - with settings ${OKGREEN}${Object.keys(this.settings).map(key => [key, this.settings[key]].join(': ')).join('; ')};${ENDC}`);
         socket.on('message', message => {
             if (rateLimiter(socket) && !this.rateLimitExceeded.has(username)) {
@@ -338,7 +371,7 @@ class TossupRoom {
         }
     }
 
-    adjustQuery(settings, values) {
+    adjustQuery(settings: string[], values: any[]) {
         if (settings.length !== values.length)
             return;
 
@@ -432,11 +465,11 @@ class TossupRoom {
         }
     }
 
-    createPlayer(userId) {
+    createPlayer(userId: string) {
         this.players[userId] = new Player(userId);
     }
 
-    deletePlayer(userId) {
+    deletePlayer(userId: string) {
         this.sendSocketMessage({
             type: 'leave',
             userId: userId,
@@ -493,7 +526,7 @@ class TossupRoom {
         });
     }
 
-    async next(userId, type) {
+    async next(userId: string, type: 'next' | 'skip' | 'start') {
         if (this.queryingQuestion) return;
         if (this.questionProgress === 1 && !this.settings.skip) return;
 
@@ -518,7 +551,7 @@ class TossupRoom {
         this.readQuestion(Date.now());
     }
 
-    pause(userId) {
+    pause(userId: string) {
         this.paused = !this.paused;
 
         if (this.paused) {
@@ -534,8 +567,8 @@ class TossupRoom {
         });
     }
 
-    async readQuestion(expectedReadTime) {
-        if (Object.keys(this.tossup).length === 0) return;
+    async readQuestion(expectedReadTime: number) {
+        if (!this.tossup || Object.keys(this.tossup).length === 0) return;
         if (this.wordIndex >= this.questionSplit.length) {
             return;
         }
@@ -568,7 +601,7 @@ class TossupRoom {
     }
 
     revealQuestion() {
-        if (Object.keys(this.tossup).length === 0) return;
+        if (!this.tossup || Object.keys(this.tossup).length === 0) return;
 
         const remainingQuestion = this.questionSplit.slice(this.wordIndex).join(' ');
         this.sendSocketMessage({
@@ -585,7 +618,7 @@ class TossupRoom {
         this.questionProgress = 2;
     }
 
-    sendSocketMessage(message) {
+    sendSocketMessage(message: {}) {
         message = JSON.stringify(message);
         for (const socket of Object.values(this.sockets)) {
             socket.send(message);

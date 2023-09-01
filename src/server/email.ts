@@ -27,16 +27,7 @@ if (process.env.SENDGRID_API_KEY) {
 }
 
 
-/**
- *
- * @param {Object} param0
- * @param {String} param0.to
- * @param {String} [param0.subject='']
- * @param {String} param0.text
- * @param {String} param0.html
- * @returns
- */
-async function sendEmail({ to, subject = '', text, html }) {
+async function sendEmail({ to, subject = '', text, html }: { to: string, subject?: string, text: string, html: string }) {
     const message = {
         from: QBREADER_EMAIL_ADDRESS,
         to,

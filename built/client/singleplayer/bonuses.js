@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 // Functions and variables specific to the bonuses page.
 // Room settings
 const query = localStorage.getItem('singleplayer-bonus-query')
@@ -185,17 +185,17 @@ async function getRandomBonus({ categories, difficulties, minYear, maxYear, subc
 async function giveAnswer(givenAnswer) {
     const { directive, directedPrompt } = await checkAnswer(questions[questionNumber - 1].answers[currentBonusPart], givenAnswer);
     switch (directive) {
-        case 'accept':
-            document.getElementById(`checkbox-${currentBonusPart + 1}`).checked = true;
+    case 'accept':
+        document.getElementById(`checkbox-${currentBonusPart + 1}`).checked = true;
         // eslint-disable-next-line no-fallthrough
-        case 'reject':
-            document.getElementById('reveal').disabled = false;
-            revealBonusPart();
-            break;
-        case 'prompt':
-            document.getElementById('answer-input-group').classList.remove('d-none');
-            document.getElementById('answer-input').focus();
-            document.getElementById('answer-input').placeholder = directedPrompt ? `Prompt: "${directedPrompt}"` : 'Prompt';
+    case 'reject':
+        document.getElementById('reveal').disabled = false;
+        revealBonusPart();
+        break;
+    case 'prompt':
+        document.getElementById('answer-input-group').classList.remove('d-none');
+        document.getElementById('answer-input').focus();
+        document.getElementById('answer-input').placeholder = directedPrompt ? `Prompt: "${directedPrompt}"` : 'Prompt';
     }
 }
 async function loadRandomBonuses({ categories, difficulties, minYear, maxYear, number = 1, subcategories, threePartBonuses }) {
@@ -204,12 +204,12 @@ async function loadRandomBonuses({ categories, difficulties, minYear, maxYear, n
         .then(response => response.json())
         .then(response => response.bonuses)
         .then(questions => {
-        for (let i = 0; i < questions.length; i++) {
-            if (Object.prototype.hasOwnProperty.call(questions[i], 'formatted_answers'))
-                questions[i].answers = questions[i].formatted_answers;
-        }
-        randomQuestions = questions;
-    });
+            for (let i = 0; i < questions.length; i++) {
+                if (Object.prototype.hasOwnProperty.call(questions[i], 'formatted_answers'))
+                    questions[i].answers = questions[i].formatted_answers;
+            }
+            randomQuestions = questions;
+        });
 }
 /**
  * Loads and reads the next question.
@@ -456,36 +456,36 @@ document.addEventListener('keydown', (event) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName))
         return;
     switch (event.key) {
-        case ' ':
-            document.getElementById('reveal').click();
-            // Prevent spacebar from scrolling the page
-            if (event.target == document.body)
-                event.preventDefault();
-            break;
-        case 'k':
-            document.getElementsByClassName('card-header')[0].click();
-            break;
-        case 'n':
-            document.getElementById('next').click();
-            break;
-        case 's':
-            document.getElementById('start').click();
-            break;
-        case '0':
-            document.getElementById(`checkbox-${currentBonusPart}`).click();
-            break;
-        case '1':
-            document.getElementById('checkbox-1').click();
-            break;
-        case '2':
-            document.getElementById('checkbox-2').click();
-            break;
-        case '3':
-            document.getElementById('checkbox-3').click();
-            break;
-        case '4':
-            document.getElementById('checkbox-4').click();
-            break;
+    case ' ':
+        document.getElementById('reveal').click();
+        // Prevent spacebar from scrolling the page
+        if (event.target == document.body)
+            event.preventDefault();
+        break;
+    case 'k':
+        document.getElementsByClassName('card-header')[0].click();
+        break;
+    case 'n':
+        document.getElementById('next').click();
+        break;
+    case 's':
+        document.getElementById('start').click();
+        break;
+    case '0':
+        document.getElementById(`checkbox-${currentBonusPart}`).click();
+        break;
+    case '1':
+        document.getElementById('checkbox-1').click();
+        break;
+    case '2':
+        document.getElementById('checkbox-2').click();
+        break;
+    case '3':
+        document.getElementById('checkbox-3').click();
+        break;
+    case '4':
+        document.getElementById('checkbox-4').click();
+        break;
     }
 });
 window.onload = async () => {
@@ -515,7 +515,7 @@ window.onload = async () => {
     }
     loadCategoryModal(query.categories, query.subcategories);
     if (query.difficulties) {
-        for (let element of document.getElementById('difficulties').children) {
+        for (const element of document.getElementById('difficulties').children) {
             const input = element.querySelector('input');
             const difficulty = parseInt(input.value);
             if (query.difficulties.includes(difficulty)) {
