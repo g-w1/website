@@ -1,4 +1,4 @@
-import type { tossup, bonus } from '../index.d.ts';
+import type { Tossup, Bonus } from '../index.d.ts';
 
 import checkAnswer from './checkAnswer.js';
 import Player from './Player.js';
@@ -27,9 +27,9 @@ function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }: { is
 class TossupRoom {
     name: string;
     isPermanent: boolean;
-    players: {};
-    sockets: {};
-    timeoutID?: number;
+    players: { [userId: string]: Player };
+    sockets: { [userId: string]: WebSocket };
+    timeoutID?: NodeJS.Timeout;
     buzzedIn: string | null;
     buzzes: string[];
     paused: boolean;
@@ -37,10 +37,10 @@ class TossupRoom {
     questionNumber: number;
     questionProgress: number;
     questionSplit: string[];
-    tossup?: tossup;
+    tossup?: Tossup;
     wordIndex: number;
-    randomQuestionCache: tossup[];
-    setCache: tossup[];
+    randomQuestionCache: Tossup[];
+    setCache: Tossup[];
     query: {
         difficulties: number[];
         minYear: number;
@@ -62,7 +62,7 @@ class TossupRoom {
         this.players = {};
         this.sockets = {};
 
-        this.timeoutID = null;
+        this.timeoutID = undefined;
         this.buzzedIn = null;
         this.buzzes = [];
         this.paused = false;
@@ -70,7 +70,7 @@ class TossupRoom {
         this.questionNumber = 0;
         this.questionProgress = 0; // 0 = not started, 1 = reading, 2 = answer revealed
         this.questionSplit = [];
-        this.tossup = {};
+        this.tossup = undefined;
         this.wordIndex = 0;
 
         this.randomQuestionCache = [];
@@ -188,7 +188,7 @@ class TossupRoom {
         });
     }
 
-    async message(userId, message) {
+    async message(userId: string, message: { type: string, [key: string]: any }) {
         const type = message.type || '';
 
         switch (type) {
@@ -479,7 +479,7 @@ class TossupRoom {
         delete this.players[userId];
     }
 
-    giveAnswer(userId, givenAnswer) {
+    giveAnswer(userId: string, givenAnswer: string) {
         if (Object.keys(this.tossup).length === 0)
             return;
 

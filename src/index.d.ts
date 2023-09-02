@@ -1,6 +1,9 @@
+import { CATEGORIES, SUBCATEGORIES_FLATTENED } from './constants.js';
+
 import { ObjectId } from 'mongodb';
 
-type question = {
+
+type Question = {
     _id: ObjectId;
 
     category: string;
@@ -38,7 +41,7 @@ type question = {
     updatedAt: Date;
 };
 
-type tossup = question & {
+type Tossup = Question & {
     question: string;
     answer: string;
     formatted_answer?: string;
@@ -46,7 +49,7 @@ type tossup = question & {
     type: "tossup";
 };
 
-type bonus = question & {
+type Bonus = Question & {
     leadin: string;
     parts: string[];
     answers: string[];
@@ -59,7 +62,7 @@ type bonus = question & {
     type: "bonus";
 };
 
-type packet = {
+type Packet = {
     _id: ObjectId;
 
     name: string;
@@ -71,7 +74,7 @@ type packet = {
     };
 }
 
-type set = {
+type Set = {
     _id: ObjectId;
 
     name: string;
@@ -80,4 +83,7 @@ type set = {
     difficulty: number;
 }
 
-export type { tossup, bonus, packet, set };
+type Category = typeof CATEGORIES[number];
+type Subcategory = typeof SUBCATEGORIES_FLATTENED[number];
+
+export type { Tossup, Bonus, Question, Packet, Set, Category, Subcategory };
